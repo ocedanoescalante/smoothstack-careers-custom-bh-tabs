@@ -1,5 +1,5 @@
 import React from "react";
-import { Button } from "react-bootstrap";
+import { Button, Dropdown, DropdownButton } from "react-bootstrap";
 import DatePicker from "react-datepicker";
 import { AnswerItem, QuestionItem, AnswerType } from "./prescreen.constant";
 import { cloneDeep } from "lodash";
@@ -115,6 +115,34 @@ export const PrescreenQuestion: React.FC<{
               updateAnser(question.questionId, date);
             }}
           />
+          <br />
+        </>
+      );
+    }
+    case AnswerType.DROPDOWN: {
+      const title =
+        question.options && question.answer
+          ? question.options.find((i) => i.key === question.answer)?.value
+          : "Select State";
+      return (
+        <>
+          <DropdownButton
+            id={`dropdown-${question.questionId}`}
+            variant="light"
+            title={title}
+          >
+            {question.options &&
+              question.options.map((option) => {
+                return (
+                  <Dropdown.Item
+                    key={`dropdownItem-${question.questionId}-${option.key}`}
+                    onClick={() => updateAnser(question.questionId, option.key)}
+                  >
+                    {option.value}
+                  </Dropdown.Item>
+                );
+              })}
+          </DropdownButton>
           <br />
         </>
       );
