@@ -2,14 +2,18 @@ import { getPrescreenData, saveForm } from "../../helpers/api";
 import { FormEntry, FORM_TYPE, PrescreenForm } from "../../types/forms";
 import {
   AnswerType,
-  precreenQuestionOrder,
+  prescreenLabelOrder,
+  prescreenQuestionOrder,
   prescreenFieldQuestions,
   QuestionItem,
 } from "./prescreen.constant";
 
 export const getCandidatePrescreenData = async (candidateId: string) => {
   const data = await getPrescreenData(candidateId);
-  const prescreenData = precreenQuestionOrder.reduce((map, questionId) => {
+  const prescreenData = [
+    ...prescreenLabelOrder,
+    ...prescreenQuestionOrder,
+  ].reduce((map, questionId) => {
     const question = prescreenFieldQuestions.get(questionId);
     const existingAns = data[questionId];
     if (question) {
@@ -31,12 +35,23 @@ export const savePrescreenForm = async (
   return res;
 };
 
+const clearDegreeFields = (
+  formItems: Map<string, QuestionItem>
+): Map<string, QuestionItem> => {
+  const isStudent = formItems.get("isStudent")?.answer;
+  if (isStudent) {
+    if (isStudent === "Yes") {
+    } else if (isStudent === "No") {
+    }
+  }
+  return formItems;
+};
+
 const constructPrescreenMessage = (
   formItems: Map<string, QuestionItem>
 ): PrescreenForm => {
   let prescreenForm: Record<string, any> = {};
-  console.log("FormItems", formItems);
-  formItems.forEach((item: QuestionItem) => {
+  clearDegreeFields(formItems).forEach((item: QuestionItem) => {
     if (!item.answer) return;
 
     switch (item.answerType) {
@@ -49,7 +64,6 @@ const constructPrescreenMessage = (
         break;
       }
       default: {
-        console.log("single item", item);
         prescreenForm[item.questionId] = {
           question: item.question,
           answer: item.answer as string,
@@ -58,6 +72,12 @@ const constructPrescreenMessage = (
       }
     }
   });
+  // add updatedTime to the form
+  prescreenForm["updatedTime"] = {
+    question: "updatedTime",
+    answer: new Date().toLocaleString("en-US"),
+  } as FormEntry;
+
   console.log("prescreenForm", prescreenForm);
   return prescreenForm as PrescreenForm;
 };

@@ -40,9 +40,18 @@ export const PrescreenQuestion: React.FC<{
           onChange={(e: any) =>
             updateAnser(question.questionId, e.target.value)
           }
-          disabled={!!question.isDisabled}
           value={question.answer || ""}
         ></input>
+      );
+    case AnswerType.TEXTBLOCK:
+      return (
+        <textarea
+          className="form-control"
+          onChange={(e: any) =>
+            updateAnser(question.questionId, e.target.value)
+          }
+          value={question.answer || ""}
+        ></textarea>
       );
     case AnswerType.SINGLE:
       return (
@@ -147,5 +156,7 @@ export const PrescreenQuestion: React.FC<{
         </>
       );
     }
+    default:
+      return null;
   }
 };

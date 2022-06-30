@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { cloneDeep } from "lodash";
-import { QuestionItem, precreenQuestionOrder } from "./prescreen.constant";
+import {
+  QuestionItem,
+  prescreenQuestionOrder,
+  prescreenLabelOrder,
+} from "./prescreen.constant";
 import { Button, Spinner } from "react-bootstrap";
 import "./prescreen.css";
 import { PrescreenQuestion } from "./PrescreenQuestion";
@@ -40,6 +44,8 @@ export const Prescreen: React.FC = () => {
     loadPrescreenForm();
   }, []);
 
+  if (isLoadingData) return <Spinner animation="border" variant="primary" />;
+
   const savePrescreen = async () => {
     if (!prescreenData) return;
     setSavingData(true);
@@ -48,26 +54,64 @@ export const Prescreen: React.FC = () => {
     loadPrescreenForm();
   };
 
-  if (isLoadingData) return <Spinner animation="border" variant="primary" />;
+  const prescreenQuestionsToShow = prescreenData
+    ? prescreenQuestionOrder?.reduce(
+        (list: QuestionItem[], questionId: string) => {
+          const item = prescreenData.get(questionId);
+          if (item) {
+            const dependence = item.dependenceIds;
+            const toShow: boolean = dependence
+              ? dependence.every((dep) => {
+                  const answer = prescreenData.get(dep.questionId)?.answer;
+                  if (!answer) return false;
+                  return dep.expectedAnswer
+                    ? dep.expectedAnswer.includes(answer as string)
+                    : true;
+                })
+              : true;
+            if (toShow) list.push(item);
+          }
+          return list;
+        },
+        []
+      )
+    : undefined;
+
   return (
     <React.Fragment>
       <h4>Prescreen for candidate #{candidateId}</h4>
-      {prescreenData &&
-        precreenQuestionOrder?.map((questionId: string, index) => {
-          const item = prescreenData.get(questionId);
-          if (item)
+      <div>
+        {prescreenData &&
+          prescreenLabelOrder?.map((questionId: string, index) => {
+            const item = prescreenData.get(questionId);
+            if (item)
+              return (
+                <div key={`questionLabel-${index}`}>
+                  <label>
+                    <strong>{`${item.question}: ${item.answer}`}</strong>
+                  </label>
+                  <br />
+                </div>
+              );
+          })}
+      </div>
+      <br />
+      <div>
+        {prescreenQuestionsToShow &&
+          prescreenQuestionsToShow.map((question: QuestionItem, index) => {
             return (
-              <div key={`question-${index}`}>
-                <label>{`${index + 1}. ${item.question}`}</label>
+              <div key={`question-${index + 1}`}>
+                <label>{`${index + 1}. ${question.question}`}</label>
                 <PrescreenQuestion
                   index={index}
-                  question={item}
+                  question={question}
                   updateAnser={updateAnser}
                 ></PrescreenQuestion>
                 <br />
               </div>
             );
-        })}
+          })}
+      </div>
       <Button
         variant="outline-primary"
         onClick={savePrescreen}
