@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { cloneDeep } from "lodash";
+import { cloneDeep, delay } from "lodash";
 import {
   QuestionItem,
   prescreenQuestionOrder,
@@ -51,7 +51,9 @@ export const Prescreen: React.FC = () => {
     setSavingData(true);
     await savePrescreenForm(prescreenData);
     setSavingData(false);
-    loadPrescreenForm();
+    // need to wait a couple of second for BH to save the data
+    setLoadingData(true);
+    delay(() => loadPrescreenForm(), 3000);
   };
 
   const prescreenQuestionsToShow = prescreenData
@@ -79,7 +81,7 @@ export const Prescreen: React.FC = () => {
 
   return (
     <React.Fragment>
-      <h4>Prescreen for candidate #{candidateId}</h4>
+      <h3>Prescreen for candidate #{candidateId}</h3>
       <div>
         {prescreenData &&
           prescreenLabelOrder?.map((questionId: string, index) => {
@@ -101,7 +103,9 @@ export const Prescreen: React.FC = () => {
           prescreenQuestionsToShow.map((question: QuestionItem, index) => {
             return (
               <div key={`question-${index + 1}`}>
-                <label>{`${index + 1}. ${question.question}`}</label>
+                <label>{`${index + 1}. ${question.question} (ref: ${
+                  question.questionId
+                })`}</label>
                 <PrescreenQuestion
                   index={index}
                   question={question}

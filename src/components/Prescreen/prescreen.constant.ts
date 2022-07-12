@@ -63,8 +63,8 @@ export const highestDegreeOptions = [
 ];
 
 export const monthsOfExperienceOptions: AnswerItem[] = [
-  { key: "belowTwenty", value: "<20" },
-  { key: "atLeastTwenty", value: ">=20" },
+  { key: "<20", value: "<20" },
+  { key: ">=20", value: ">=20" },
 ];
 
 export const programmingLanguagesOptions: AnswerItem[] = [

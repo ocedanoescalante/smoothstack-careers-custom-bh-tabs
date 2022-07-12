@@ -31,8 +31,7 @@ export const savePrescreenForm = async (
   formItems: Map<string, QuestionItem>
 ) => {
   const constructedForm = constructPrescreenMessage(formItems);
-  const res = await saveForm(FORM_TYPE.PRESCREEN, constructedForm);
-  return res;
+  return await saveForm(FORM_TYPE.PRESCREEN, constructedForm);
 };
 
 const clearDegreeFields = (
@@ -41,7 +40,11 @@ const clearDegreeFields = (
   const isStudent = formItems.get("isStudent")?.answer;
   if (isStudent) {
     if (isStudent === "Yes") {
+      formItems.delete("highestDegree");
+      formItems.delete("graduationDate");
     } else if (isStudent === "No") {
+      formItems.delete("expectedDegree");
+      formItems.delete("expectedGraduationDate");
     }
   }
   return formItems;
