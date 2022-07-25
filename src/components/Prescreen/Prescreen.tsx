@@ -63,6 +63,7 @@ export const Prescreen: React.FC<{
     const test = `${window.location.search} ${JSON.stringify(queryParams)}`;
     setErrorString(test);
     const id = queryParams.get("EntityID");
+    console.log(id)
     let prescreenResponse;
     if (id) {
       setCandidateId(id);
